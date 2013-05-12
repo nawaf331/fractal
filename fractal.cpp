@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <GL/glut.h> // include GLUT library header
+#include <GL/glut.h> 
 
+//#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
+//#define OS_WIN
+//#endif
 
 int width=600, height=600; // window size
 int windowID;
@@ -14,7 +17,7 @@ GLfloat stepY = (maxY - minY)/(GLfloat)height;
 
 char titleSet[10][25]={"Mandelbrot fractal","Mandelbrot^3 fractal","Flower fractal","Star fractal","Julia Fractal"};
 
-
+int flag=0;
 GLfloat black[] = {0.0f, 0.0f, 0.0f}; // black color
 const int paletteSize = 128;
 GLfloat palette[paletteSize][3];
@@ -24,8 +27,15 @@ int fracCount=0;
 GLfloat juliaFactor=0.0;
 GLfloat juliaSpecial=0.5;
 GLfloat zoomFactor=0.1;
-//****************************************
 
+//#ifdef OS_WIN
+//flag=0;
+//#else
+
+//#endif
+
+
+//****************************************
 void output(float x,float y,float z,void *font,char *string)
 {
 	char *c;
@@ -37,14 +47,15 @@ void output(float x,float y,float z,void *font,char *string)
 }
 
 
-GLfloat* greenJulia(GLfloat u, GLfloat v){
+//***************************************
+GLfloat* greenJulia(GLfloat u, GLfloat v){	//front page. though it is not green :P
 	GLfloat re = u;
 	GLfloat im = v;
-	GLfloat frontFrac1=-0.1;
+	GLfloat frontFrac1=-0.1;		
 	GLfloat frontFrac2=0.651;
 	GLfloat tempRe=0.0;
 	for(int i=0; i < paletteSize; i++){
-		tempRe = re*re - im*im + frontFrac1+juliaFactor;
+		tempRe = re*re - im*im + frontFrac1+juliaFactor;			//z=z^2+(-0.1+0.651i)
 		im = re * im * 2 + frontFrac2+juliaFactor;
 		re = tempRe;
 		if( (re*re + im*im) > radius ){
@@ -54,7 +65,8 @@ GLfloat* greenJulia(GLfloat u, GLfloat v){
 	return black;
 }
 
-GLfloat *mandelbrot(GLdouble u, GLdouble v)
+//****************************************
+GLfloat *mandelbrot(GLdouble u, GLdouble v)	//z=z^2+c 
 {
 	GLdouble re = u;
 	GLdouble im = v;
@@ -73,7 +85,8 @@ GLfloat *mandelbrot(GLdouble u, GLdouble v)
 		return black;
 }
 
-GLfloat *mandelbrot3(GLdouble u, GLdouble v)
+//*****************************************
+GLfloat *mandelbrot3(GLdouble u, GLdouble v)		//z=z^3+c
 {
 
 	GLdouble re = u;
@@ -93,15 +106,16 @@ GLfloat *mandelbrot3(GLdouble u, GLdouble v)
 		return black;
 }
 
-GLfloat *starFractal(GLdouble u, GLdouble v)
+//******************************************
+GLfloat *starFractal(GLdouble u, GLdouble v)	//shape resembles to be that of a star
 {
-		GLdouble re = u;
+	GLdouble re = u;
 	GLdouble im = v;
 	GLdouble tempRe=0.0;
 		GLfloat starFrac1=-0.1;
 	GLfloat starFrac2=0.651;
 
-	for(int i=0; i < paletteSize; i++)
+	for(int i=0; i < paletteSize; i++)		//z=z^3+(-0.1+0.651i)
 	{
 		tempRe = re*re*re - re*im*im - 2*re*im*im -( re*re - im*im)+starFrac1+ juliaFactor*10;
 		im = re*re*im -im*im*im+ 2*re*re*im -(re * im * 2) +starFrac2+juliaFactor*10;
@@ -110,13 +124,14 @@ GLfloat *starFractal(GLdouble u, GLdouble v)
 
 			if( (re*re + im*im) > radius )
 			{
-				return palette[(i+100)];		///for color variation add 45 to color index
+				return palette[(i+100)];		///for color variation add 100 to color index
 			}
 	}
 		return black;
 }
 
-GLfloat *julia(GLdouble u, GLdouble v)
+//***********************************
+GLfloat *julia(GLdouble u, GLdouble v)		//julia set z=z^2+k where k is 0.36
 {
 	GLdouble re = u;
 	GLdouble im = v;
@@ -135,7 +150,8 @@ GLfloat *julia(GLdouble u, GLdouble v)
 		return black;
 }
 
-GLfloat *flower(GLdouble u, GLdouble v)
+//*************************************
+GLfloat *flower(GLdouble u, GLdouble v)		//z=z^2+C where C varies for each iteration of each point
 {
 	GLdouble re = u;
 	GLdouble im = v;
@@ -153,6 +169,7 @@ GLfloat *flower(GLdouble u, GLdouble v)
 		return black;
 }
 
+//***********************************
 void drawFrontPage(){
 	glPushMatrix();
 	char name[10]="About Us";
@@ -174,13 +191,14 @@ void drawFrontPage(){
 	//help
 	glTranslatef(0.0,-0.3,0.0);
 	glColor3f(0.0,0.0,0.0);
+	glBegin(GL_POLYGON);
 	glVertex3f(0.0,0.08,0.0);
 	glVertex3f(0.0,-0.11,0.0);
 	glVertex3f(0.65,-0.11,0.0);
 	glVertex3f(0.65,0.08,0.0);
 	glEnd();
 	glColor3f(1.0,1.0,1.0);
-	output(0.05,-0.05,0,GLUT_BITMAP_TIMES_ROMAN_24,help);
+	output(0.20,-0.05,0,GLUT_BITMAP_TIMES_ROMAN_24,help);
 	
 	//printf("about us\n");
 	glColor3f(0.0,0.0,0.0);
@@ -202,6 +220,59 @@ void drawFrontPage(){
 	glPopMatrix();
 }
 
+
+void mymenu(int value) {
+	if(value == 1)
+		switch(fracCount)
+		{
+			case 0:
+				printf("============= front page ================ \n");
+				printf("A fractal is a mathematical set that has a fractal dimension that usually exceeds its topological dimension and may fall between the integers. Fractals are typically self-similar patterns, where self-similar means they are \"the same from near as from far\". Fractals may be exactly the same at every scale, or, they may be nearly the same at different scales. The definition of fractal goes beyond self-similarity per se to exclude trivial self-similarity and include the idea of a detailed pattern repeating itself.\n\n");	
+				break;
+			case 1:
+				printf("====== Mandelbrot fractal ======\n");
+				printf("The equation for this fractal is z=z^2+c\n\n");
+				break;
+			case 2:
+				printf("====== Mandelbrot^3 ====== \n");
+				printf("The equation for this fractal is z=z^3+c\n");
+				break;
+			case 3:
+				printf("====== flower fractal ====== \n");
+				printf("The equation for this fractal is z=z^3+c\n");
+				break;
+			case 4:
+				printf("star fractal\n");
+				break;
+			case 5:
+				printf("Julia factor\n");
+				break;
+		}
+	else if(value == 2 )
+	{
+		fracCount=1;
+		glutPostRedisplay();
+	}
+	else if(value == 3)
+	{
+		fracCount=2;
+		glutPostRedisplay();
+	}
+	else if(value == 4)
+	{
+		fracCount=5;
+		glutPostRedisplay();
+	}
+	else if(value == 10 )
+	{
+		system("gedit /home/neo/CG_proj/fractalFiles/help");	
+	}
+	else if(value==99)
+	{
+		system("gedit /home/neo/CG_proj/fractalFiles/about");	
+	}
+
+}
 
 GLfloat* calculateColor(GLfloat u, GLfloat v){
 	switch(fracCount)
@@ -382,28 +453,28 @@ void mouseFunction(int button,int state,int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		if(fracCount==0)
+		if(fracCount==0 && flag==0)
 		{
 			printf("x = %d,y = %d\n",x,y);
 				//**************** check if the user clicks on any button
-	
+		
 			if((x>85 && x<210) && y>385 && y<420)
 			{
-				system("gedit fractalFiles/description");	
+				system("gedit /home/neo/CG_proj/fractalFiles/description");	
 			}
 			else if((x>85 && x<210) && y>445 && y<480)
 			{
-				system("gedit fractalFiles/help");	
+				system("gedit /home/neo/CG_proj/fractalFiles/help");	
 			}
 			else if((x>85 && x<210) && y>500 && y<555)
 			{
-				system("gedit fractalFiles/about");	
+				system("gedit /home/neo/CG_proj/fractalFiles/about");	
 			}
 			
 		}
 		else { //if(fracCount%100!=99){
 			
-		printf("Zooooooooming area %d \n",fracCount);
+		printf("Zooooooooming area \n");
 		GLdouble centreX=minX+stepX*x;
 		GLdouble centreY=minY+stepY*y;
 
@@ -422,13 +493,14 @@ void mouseFunction(int button,int state,int x, int y)
 	else
 	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		if(fracCount==0)
-		{
-			printf("not yet implemented\n");
-		}
-		else{
-		printf("function yet to be implemented\n");
-		}
+		glutCreateMenu(mymenu); // single menu, no need for id
+		glutAddMenuEntry("What is this", 1);
+		glutAddMenuEntry("Mandelbrot Fractal",2);
+		glutAddMenuEntry("Mandelbrot^3 fractal",3);
+		glutAddMenuEntry("Julia Fractal",4);
+		glutAddMenuEntry("How do i use this",10);
+		glutAddMenuEntry("About Us", 99);
+		glutAttachMenu(GLUT_RIGHT_BUTTON);
 	}
 	else 
 	if(button == GLUT_MIDDLE_BUTTON && state==GLUT_DOWN)
@@ -454,7 +526,8 @@ void mouseFunction(int button,int state,int x, int y)
 void specialKeyFunction(int key, int x, int y){ // function to handle key pressing
 	switch(key)
 	{
-		case GLUT_KEY_RIGHT: 
+		case GLUT_KEY_RIGHT:
+			color=0;
 			minX = -2.2f, maxX = 0.8f, minY = -1.5f, maxY = 1.5; 
 			stepX = (maxX - minX)/(GLfloat)width;
 			stepY = (maxY - minY)/(GLfloat)height;
@@ -464,6 +537,7 @@ void specialKeyFunction(int key, int x, int y){ // function to handle key pressi
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_LEFT:
+			color=0;
 			minX = -2.2f, maxX = 0.8f, minY = -1.5f, maxY = 1.5; 
 			stepX = (maxX - minX)/(GLfloat)width;
 			stepY = (maxY - minY)/(GLfloat)height;
@@ -509,7 +583,7 @@ void specialKeyFunction(int key, int x, int y){ // function to handle key pressi
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_F1:
-			printf("Help meee\n");
+			system("gedit /home/neo/CG_proj/fractalFiles/help");
 			break;
 		case GLUT_KEY_F10:
 			if(fullScreen){
@@ -578,3 +652,5 @@ int main(int argc, char** argv){
 
 	return 0;
 }
+
+//#endif
