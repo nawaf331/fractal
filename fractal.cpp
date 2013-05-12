@@ -1,4 +1,5 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <GL/glut.h> // include GLUT library header
 
@@ -11,6 +12,7 @@ GLfloat minX = -2.2f, maxX = 0.8f, minY = -1.5f, maxY = 1.5; // complex plane bo
 GLfloat stepX = (maxX - minX)/(GLfloat)width;
 GLfloat stepY = (maxY - minY)/(GLfloat)height;
 
+char titleSet[10][25]={"Mandelbrot fractal","Mandelbrot^3 fractal","Flower fractal","Star fractal","Julia Fractal"};
 
 
 GLfloat black[] = {0.0f, 0.0f, 0.0f}; // black color
@@ -23,15 +25,27 @@ GLfloat juliaFactor=0.0;
 GLfloat juliaSpecial=0.5;
 GLfloat zoomFactor=0.1;
 //****************************************
+
+void output(float x,float y,float z,void *font,char *string)
+{
+	char *c;
+	glRasterPos3f(x,y,z);
+	for (c=string; *c != '\0'; c++)
+	{
+		glutBitmapCharacter(font, *c);
+	}
+}
+
+
 GLfloat* greenJulia(GLfloat u, GLfloat v){
 	GLfloat re = u;
 	GLfloat im = v;
-	GLfloat juliaFrac01=-0.1;
-	GLfloat juliaFrac02=0.651;
+	GLfloat frontFrac1=-0.1;
+	GLfloat frontFrac2=0.651;
 	GLfloat tempRe=0.0;
 	for(int i=0; i < paletteSize; i++){
-		tempRe = re*re - im*im + juliaFrac01+juliaFactor;
-		im = re * im * 2 + juliaFrac02+juliaFactor;
+		tempRe = re*re - im*im + frontFrac1+juliaFactor;
+		im = re * im * 2 + frontFrac2+juliaFactor;
 		re = tempRe;
 		if( (re*re + im*im) > radius ){
 			return palette[i+35];
@@ -84,13 +98,13 @@ GLfloat *starFractal(GLdouble u, GLdouble v)
 		GLdouble re = u;
 	GLdouble im = v;
 	GLdouble tempRe=0.0;
-		GLfloat juliaFrac01=-0.1;
-	GLfloat juliaFrac02=0.651;
+		GLfloat starFrac1=-0.1;
+	GLfloat starFrac2=0.651;
 
 	for(int i=0; i < paletteSize; i++)
 	{
-		tempRe = re*re*re - re*im*im - 2*re*im*im -( re*re - im*im)+juliaFrac01+ juliaFactor*10;
-		im = re*re*im -im*im*im+ 2*re*re*im -(re * im * 2) +juliaFrac02+juliaFactor*10;
+		tempRe = re*re*re - re*im*im - 2*re*im*im -( re*re - im*im)+starFrac1+ juliaFactor*10;
+		im = re*re*im -im*im*im+ 2*re*re*im -(re * im * 2) +starFrac2+juliaFactor*10;
 			re = tempRe;
 
 
@@ -107,12 +121,11 @@ GLfloat *julia(GLdouble u, GLdouble v)
 	GLdouble re = u;
 	GLdouble im = v;
 	GLdouble tempRe=0.0;
-	GLdouble juliaFrac1=0.36;
-	GLdouble juliaFrac2=0.36;
+	GLdouble juliaFrac=0.36;
 	for(int i=0; i < paletteSize; i++)
 		{
-			tempRe =  re*re - im*im + juliaFrac1+juliaFactor;
-			im = re * im * 2 + juliaFrac2+juliaFactor;
+			tempRe =  re*re - im*im + juliaFrac+juliaFactor;
+			im = re * im * 2 + juliaFrac+juliaFactor;
 			re = tempRe;
 			if( (re*re + im*im) > radius )
 			{
@@ -140,6 +153,56 @@ GLfloat *flower(GLdouble u, GLdouble v)
 		return black;
 }
 
+void drawFrontPage(){
+	glPushMatrix();
+	char name[10]="About Us";
+	char desc[20]="Description";
+	char help[10]="Help";
+	char title[25]="Fractals are awesome!!";
+	char isntit[25]="isn't it? :D";
+	glColor3f(0.0,0.0,0.0);
+	glTranslatef(-1.8,-0.5,0.0);
+	glBegin(GL_POLYGON);
+	glVertex3f(0.02,0.08,0.0);
+	glVertex3f(0.02,-0.11,0.0);
+	glVertex3f(0.65,-0.11,0.0);
+	glVertex3f(0.65,0.08,0.0);
+	glEnd();
+	glColor3f(1.0,1.0,1.0);
+	output(0.05,-0.05,0,GLUT_BITMAP_TIMES_ROMAN_24,desc);
+
+	//help
+	glTranslatef(0.0,-0.3,0.0);
+	glColor3f(0.0,0.0,0.0);
+	glVertex3f(0.0,0.08,0.0);
+	glVertex3f(0.0,-0.11,0.0);
+	glVertex3f(0.65,-0.11,0.0);
+	glVertex3f(0.65,0.08,0.0);
+	glEnd();
+	glColor3f(1.0,1.0,1.0);
+	output(0.05,-0.05,0,GLUT_BITMAP_TIMES_ROMAN_24,help);
+	
+	//printf("about us\n");
+	glColor3f(0.0,0.0,0.0);
+	glTranslatef(0.0,-0.3,0.0);
+	glBegin(GL_POLYGON);
+	glVertex3f(0.02,0.08,0.0);
+	glVertex3f(0.02,-0.11,0.0);
+	glVertex3f(0.65,-0.11,0.0);
+	glVertex3f(0.65,0.08,0.0);
+	glEnd();
+	glColor3f(1.0,1.0,1.0);
+	output(0.10,-0.05,0,GLUT_BITMAP_TIMES_ROMAN_24,name);
+	
+	glTranslatef(1.8,1.2,0.0);
+	glColor3f(0.0,0.0,0.0);
+	output(-1.2,1.2,0,GLUT_BITMAP_TIMES_ROMAN_24,title);
+	output(-0.95,1.05,0,GLUT_BITMAP_TIMES_ROMAN_24,isntit);
+	
+	glPopMatrix();
+}
+
+
 GLfloat* calculateColor(GLfloat u, GLfloat v){
 	switch(fracCount)
 	{
@@ -161,7 +224,7 @@ GLfloat* calculateColor(GLfloat u, GLfloat v){
 		case 3:
 			//	printf("Flower\n");
 				juliaSpecial=0.0;
-				//color=32;
+				//color=0.0;
 				return flower(u,v);
 				break;
 		case 4:
@@ -178,9 +241,10 @@ GLfloat* calculateColor(GLfloat u, GLfloat v){
 					break;
 		default: 
 			//printf("default\n");
-			juliaSpecial=0.0;
-			
-			return mandelbrot(u,v);
+			//juliaSpecial=0.0;
+			fracCount=0;
+			glutPostRedisplay();
+			//return mandelbrot(u,v);
 			break;
 
 	}
@@ -200,13 +264,28 @@ void repaint() {// function called to repaint the window
 		}
 	}
 	glEnd(); // end drawing
+	if(fracCount==0){
+		drawFrontPage();
+	}
+	else
+	{
+		glPushMatrix();
+		char title[25]="";
+		strcpy(title,titleSet[fracCount-1]);
+		glColor3f(0.2,0.2,0.2);
+		output(-1.1,1.2,0,GLUT_BITMAP_TIMES_ROMAN_24,title);
+		printf("%s\n",title);
+		glPopMatrix();
+	}
 	glutSwapBuffers(); // swap the buffers - [ 2 ]
 }
 
 //****************************************
 void reshape (int w, int h){ // function called when window size is changed
-	stepX = (maxX-minX)/(GLfloat)w; // calculate new value of step along X axis
-	stepY = (maxY-minY)/(GLfloat)h; // calculate new value of step along Y axis
+	width=w;
+	height=h;
+	stepX = (maxX-minX)/(GLfloat)width; // calculate new value of step along X axis
+	stepY = (maxY-minY)/(GLfloat)height; // calculate new value of step along Y axis
 	glViewport (0, 0, (GLsizei)w, (GLsizei)h); // set new dimension of viewable screen
 	glutPostRedisplay(); // repaint the window
 }
@@ -305,11 +384,26 @@ void mouseFunction(int button,int state,int x, int y)
 	{
 		if(fracCount==0)
 		{
-			printf("dinka chika\n");
-		}
-		else {
+			printf("x = %d,y = %d\n",x,y);
+				//**************** check if the user clicks on any button
+	
+			if((x>85 && x<210) && y>385 && y<420)
+			{
+				system("gedit fractalFiles/description");	
+			}
+			else if((x>85 && x<210) && y>445 && y<480)
+			{
+				system("gedit fractalFiles/help");	
+			}
+			else if((x>85 && x<210) && y>500 && y<555)
+			{
+				system("gedit fractalFiles/about");	
+			}
 			
-		printf("Zooooooooming area\n");
+		}
+		else { //if(fracCount%100!=99){
+			
+		printf("Zooooooooming area %d \n",fracCount);
 		GLdouble centreX=minX+stepX*x;
 		GLdouble centreY=minY+stepY*y;
 
@@ -330,7 +424,7 @@ void mouseFunction(int button,int state,int x, int y)
 	{
 		if(fracCount==0)
 		{
-			printf("dinka\n");
+			printf("not yet implemented\n");
 		}
 		else{
 		printf("function yet to be implemented\n");
@@ -467,7 +561,7 @@ int main(int argc, char** argv){
 	GLsizei windowY = (glutGet(GLUT_SCREEN_HEIGHT)-height)/2;
 	glutInitWindowPosition(windowX, windowY);
 	glutInitWindowSize(width, height);
-	windowID = glutCreateWindow("---Fractal---");
+	windowID = glutCreateWindow("Matrix Fractal Zoomer");
 
 	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
 	glMatrixMode (GL_PROJECTION);
