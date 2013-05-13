@@ -1,1 +1,40 @@
-A fractal is a mathematical set that has a fractal dimension that usually exceeds its topological dimension and may fall between the integers. Fractals are typically self-similar patterns, where self-similar means they are "the same from near as from far". Fractals may be exactly the same at every scale, or, they may be nearly the same at different scales. The definition of fractal goes beyond self-similarity per se to exclude trivial self-similarity and include the idea of a detailed pattern repeating itself.
+1)What is a fractal?
+** Mandelbrot:-
+A rough or fragmented geometric shape that can be subdivided in parts,
+each of which is (at least approximately) a reduced/size copy of the whole.
+** Mathematical:-
+A set of points whose fractal dimension exceeds its topological dimension. 
+
+
+2)How do i get these designs?
+The Mandelbrot set is created by a general technique where a function of the form
+z(n+1) = f(zn) is used to create a series of a complex variable.
+In the case of the Mandelbrot the function is f(zn) = zn^2 + z0. 
+*Mandelbrot^3 is f(zn)=zn^3+z0.
+*Julia is f(zn)=zn^2+k; where k is any complex number
+*star fractal is given by the equation f(z)=z^3+(-0.1+0.651i)
+*flower fractal is z=z^2+C, where C varies per iteration of each point
+
+
+3) I want to know some more!
+The basic algorithm can be written as
+for(y=0; y<Height; ++y)
+{
+    for(x=0; x<Width; ++x)
+    {
+  	// Calculate whether z0 belongs to the Mandelbrot set or
+        // not and draw a pixel at coordinates (x,y) accordingly
+    }
+}
+
+
+4) Cool, how did you come to know about this!!
+It was thru one of my best friend. then i googled for more information.
+Referred existing code, it helped me a lot while starting up this mini-project.
+
+
+5)So what next?
+Fractals are infinite in numbers. So this is a never ending project. 
+Anybody who is interested to work on this, you're welcome. get the code from
+https://www.github.com/nawaf331/fractal.git 
+
