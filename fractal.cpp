@@ -1,23 +1,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include <GL/glut.h> 
-
 //#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
 //#define OS_WIN
 //#endif
-
 int width=600, height=600; // window size
 int windowID;
-int color=0;
-
+int color=0,flag=0;
 GLfloat minX = -2.2f, maxX = 0.8f, minY = -1.5f, maxY = 1.5; // complex plane boundaries
 GLfloat stepX = (maxX - minX)/(GLfloat)width;
 GLfloat stepY = (maxY - minY)/(GLfloat)height;
-
-char titleSet[10][25]={"Mandelbrot fractal","Mandelbrot^3 fractal","Flower fractal","Star fractal","Julia Fractal"};
-
-int flag=0;
+char titleSet[10][25]={"Mandelbrot fractal","Mandelbrot^3 fractal","Flower fractal","Star fractal","Julia Fractal","Sierpanski Gasket"};
 GLfloat black[] = {0.0f, 0.0f, 0.0f}; // black color
 const int paletteSize = 128;
 GLfloat palette[paletteSize][3];
@@ -27,14 +22,18 @@ int fracCount=0;
 GLfloat juliaFactor=0.0;
 GLfloat juliaSpecial=0.5;
 GLfloat zoomFactor=0.1;
+GLfloat theta=0.0;
+int randm=0;
+
+typedef float point[3];
+point v[]={{-0.5,0.0,1.0},{-0.5,1.0,0.0},
+           {-1.5,-0.5,0.0}, {0.5,-0.5,0.0}};
 
 //#ifdef OS_WIN
 //flag=0;
 //#else
 
 //#endif
-
-
 //****************************************
 void output(float x,float y,float z,void *font,char *string)
 {
@@ -45,8 +44,6 @@ void output(float x,float y,float z,void *font,char *string)
 		glutBitmapCharacter(font, *c);
 	}
 }
-
-
 //***************************************
 GLfloat* greenJulia(GLfloat u, GLfloat v){	//front page. though it is not green :P
 	GLfloat re = u;
@@ -265,11 +262,11 @@ void mymenu(int value) {
 	}
 	else if(value == 10 )
 	{
-		system("gedit help");	
+		system("gedit /home/neo/CG_proj/fractalFiles/help");	
 	}
 	else if(value==99)
 	{
-		system("gedit about");	
+		system("gedit /home/neo/CG_proj/fractalFiles/about");	
 	}
 
 }
@@ -278,14 +275,14 @@ GLfloat* calculateColor(GLfloat u, GLfloat v){
 	switch(fracCount)
 	{
 		case 0: 
-			juliaSpecial=0.5;
-			return greenJulia(u,v);
-			break;
+					juliaSpecial=0.5;
+					return greenJulia(u,v);
+					break;
 		case 1:
 
 			juliaSpecial=0.0;
 			return mandelbrot(u,v);
-			break;
+					break;
 		case 2:
 
 			//color=0;
@@ -322,9 +319,51 @@ GLfloat* calculateColor(GLfloat u, GLfloat v){
 }
 
 //****************************************
+void triangle(point a,point b,point c)
+{
+	glBegin(GL_POLYGON);
+	  glVertex3fv(a);
+	  glVertex3fv(b);
+	  glVertex3fv(c);
+	glEnd();
+}
+
+void divide_triangle(point a,point b,point c,int m)
+{
+	point v1,v2,v3;
+	int j;
+	if(m>0)
+	{
+		for(j=0;j<3;j++)
+			v1[j]=(a[j]+b[j])/2;
+		for(j=0;j<3;j++)
+			v2[j]=(a[j]+c[j])/2;
+		for(j=0;j<3;j++)
+			v3[j]=(c[j]+b[j])/2;
+		divide_triangle(a,v1,v2,m-1);
+		divide_triangle(c,v2,v3,m-1);
+		divide_triangle(b,v3,v1,m-1);
+	}
+	else(triangle(a,b,c));
+}
+
+void tetrahedron(int m)
+{
+	glColor3fv(palette[color]);
+	divide_triangle(v[0],v[1],v[2],m);
+	glColor3fv(palette[color+6]);
+	divide_triangle(v[3],v[2],v[1],m);
+	glColor3fv(palette[color+12]);
+	divide_triangle(v[0],v[3],v[1],m);
+	glColor3fv(palette[color+18]);
+	divide_triangle(v[0],v[2],v[3],m);
+}
+
+//****************************************
 void repaint() {// function called to repaint the window
 	GLfloat* pixelColor;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen buffer
+	if(fracCount<6){
 	glBegin(GL_POINTS); // start drawing in single pixel mode
 	for(GLfloat y = maxY; y >= minY; y -= stepY){
 		for(GLfloat x = minX+juliaSpecial; x <= maxX+juliaSpecial; x += stepX){
@@ -335,6 +374,17 @@ void repaint() {// function called to repaint the window
 		}
 	}
 	glEnd(); // end drawing
+	}
+	else {
+		switch(fracCount)
+		{
+			case 6:
+				//glPushMatrix();
+				tetrahedron(5);
+				//glPopMatrix();
+				break;
+		}
+	}
 	if(fracCount==0){
 		drawFrontPage();
 	}
@@ -441,6 +491,20 @@ case '-':
 		glOrtho(minX, maxX, minY, maxY, ((GLfloat)-1), (GLfloat)1);
 		glutPostRedisplay(); // repaint the window
 		break;
+case '<' : 
+		theta+=0.2;
+		srand(time(NULL));
+		randm=rand()%3;
+		glClearColor(1.0,1.0,1.0,1.0);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		if(randm==0)
+			glRotatef(theta,1.0,0.0,0.0);
+		else if(randm==1)
+			glRotatef(theta,0.0,1.0,0.0);
+		else
+			glRotatef(theta,0.0,0.0,1.0);
+		glutPostRedisplay();
+		break;
 case 27 : // escape key - close the program
 	glutDestroyWindow(windowID);
 	exit(0);
@@ -460,15 +524,15 @@ void mouseFunction(int button,int state,int x, int y)
 		
 			if((x>85 && x<210) && y>385 && y<420)
 			{
-				system("gedit description");	
+				system("gedit /home/neo/CG_proj/fractalFiles/description");	
 			}
 			else if((x>85 && x<210) && y>445 && y<480)
 			{
-				system("gedit help");	
+				system("gedit /home/neo/CG_proj/fractalFiles/help");	
 			}
 			else if((x>85 && x<210) && y>500 && y<555)
 			{
-				system("gedit about");	
+				system("gedit /home/neo/CG_proj/fractalFiles/about");	
 			}
 			
 		}
@@ -547,6 +611,7 @@ void specialKeyFunction(int key, int x, int y){ // function to handle key pressi
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_UP:
+		if(fracCount<6) {
 			printf("Zooming in\n");
 			minX+=zoomFactor;
 			maxX-=zoomFactor;
@@ -558,6 +623,11 @@ void specialKeyFunction(int key, int x, int y){ // function to handle key pressi
 			glLoadIdentity();
 			glOrtho(minX, maxX, minY, maxY, ((GLfloat)-1), (GLfloat)1);
 			glutPostRedisplay(); // repaint the window
+		}
+		else {
+			theta+=0.2;
+			glutPostRedisplay();
+		}
 			break;
 		case GLUT_KEY_DOWN:
 			printf("Zooming out\n");
@@ -583,7 +653,7 @@ void specialKeyFunction(int key, int x, int y){ // function to handle key pressi
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_F1:
-			system("gedit help");
+			system("gedit /home/neo/CG_proj/fractalFiles/help");
 			break;
 		case GLUT_KEY_F10:
 			if(fullScreen){
