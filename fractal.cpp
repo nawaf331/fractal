@@ -262,11 +262,11 @@ void mymenu(int value) {
 	}
 	else if(value == 10 )
 	{
-		system("gedit /home/neo/CG_proj/fractalFiles/help");	
+		system("gedit help");	
 	}
 	else if(value==99)
 	{
-		system("gedit /home/neo/CG_proj/fractalFiles/about");	
+		system("gedit about");	
 	}
 
 }
@@ -524,15 +524,15 @@ void mouseFunction(int button,int state,int x, int y)
 		
 			if((x>85 && x<210) && y>385 && y<420)
 			{
-				system("gedit /home/neo/CG_proj/fractalFiles/description");	
+				system("gedit description");	
 			}
 			else if((x>85 && x<210) && y>445 && y<480)
 			{
-				system("gedit /home/neo/CG_proj/fractalFiles/help");	
+				system("gedit help");	
 			}
 			else if((x>85 && x<210) && y>500 && y<555)
 			{
-				system("gedit /home/neo/CG_proj/fractalFiles/about");	
+				system("gedit about");	
 			}
 			
 		}
@@ -653,7 +653,7 @@ void specialKeyFunction(int key, int x, int y){ // function to handle key pressi
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_F1:
-			system("gedit /home/neo/CG_proj/fractalFiles/help");
+			system("gedit help");
 			break;
 		case GLUT_KEY_F10:
 			if(fullScreen){
